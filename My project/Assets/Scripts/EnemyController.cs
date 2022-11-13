@@ -4,88 +4,95 @@ using UnityEngine;
 
 public class EnemyController : MonoBehaviour
 {
-    public float speed;
-    public bool vertical;
-    public float changeTime = 3.0f;
+	public float speed;
+    public float changeTime;
+    public bool horizontal;
 
-    public ParticleSystem smokeEffect;
-    
-    Rigidbody2D rigidbody2d;
-    float timer;
-    int direction = 1;
+	public ParticleSystem smokeEffect;
+	public ParticleSystem fixedParticleEffect;
+
+	public AudioClip hitSound;
+	public AudioClip fixedSound;
+	
+	Rigidbody2D rigidbody2d;
+	float timer;
+	Vector2 direction = Vector2.right;
     bool broken = true;
-    
-    Animator animator;
-    
-    // Start is called before the first frame update
-    void Start()
-    {
-        rigidbody2d = GetComponent<Rigidbody2D>();
-        timer = changeTime;
-        animator = GetComponent<Animator>();
-    }
+	
+	Animator animator;
+	AudioSource audioSource;
 
-    void Update()
-    {
-        //remember ! inverse the test, so if broken is true !broken will be false and return won’t be executed.
+    private RubyController rubyController;
+
+	void Start ()
+	{
+		rigidbody2d = GetComponent<Rigidbody2D>();
+        timer = changeTime;
+		direction = horizontal ? Vector2.right : Vector2.down;
+		animator = GetComponent<Animator>();
+		audioSource = GetComponent<AudioSource>();
+        GameObject rubyControllerObject = GameObject.FindWithTag("Player");
+        rubyController = rubyControllerObject.GetComponent<RubyController>();
+	}
+	
+	void Update()
+	{
+
         if(!broken)
         {
             return;
         }
-        
         timer -= Time.deltaTime;
-
+		
         if (timer < 0)
         {
-            direction = -direction;
-            timer = changeTime;
+            timer += changeTime;
+            direction *= -1;
         }
+        
+        animator.SetFloat("ForwardX", direction.x);
+		animator.SetFloat("ForwardY", direction.y);
     }
-    
-    void FixedUpdate()
-    {
-        //remember ! inverse the test, so if broken is true !broken will be false and return won’t be executed.
-        if(!broken)
+
+
+	void FixedUpdate()
+	{
+                if(!broken)
         {
             return;
         }
-        
-        Vector2 position = rigidbody2d.position;
-        
-        if (vertical)
-        {
-            position.y = position.y + Time.deltaTime * speed * direction;
-            animator.SetFloat("Move X", 0);
-            animator.SetFloat("Move Y", direction);
-        }
-        else
-        {
-            position.x = position.x + Time.deltaTime * speed * direction;
-            animator.SetFloat("Move X", direction);
-            animator.SetFloat("Move Y", 0);
-        }
-        
-        GetComponent<Rigidbody2D>().MovePosition(position);
-    }
-    
-    void OnCollisionEnter2D(Collision2D other)
-    {
-        RubyController player = other.gameObject.GetComponent<RubyController >();
+		rigidbody2d.MovePosition(rigidbody2d.position + direction * speed * Time.deltaTime);
+	}
 
-        if (player != null)
-        {
-            player.ChangeHealth(-1);
-        }
-    }
-    
-    //Public because we want to call it from elsewhere like the projectile script
-    public void Fix()
-    {
+	void OnCollisionStay2D(Collision2D other)
+	{
+        if(!broken)
+        return;
+
+		RubyController controller = other.collider.GetComponent<RubyController>();
+		
+		if(controller != null)
+			controller.ChangeHealth(-1);
+	}
+
+	public void Fix()
+	{
         broken = false;
-        GetComponent<Rigidbody2D>().simulated = false;
-        //optional if you added the fixed animation
-        animator.SetTrigger("Fixed");
-        
+		animator.SetTrigger("Fixed");
         smokeEffect.Stop();
-    }
+
+        if (rubyController != null)
+        {   
+            rubyController.fixedText(1);
+        }
+
+		Instantiate(fixedParticleEffect, transform.position + Vector3.up * 0.5f, Quaternion.identity);
+
+		//we don't want that enemy to react to the player or bullet anymore, remove its reigidbody from the simulation
+		rigidbody2d.simulated = false;
+		
+		audioSource.Stop();
+		audioSource.PlayOneShot(hitSound);
+		audioSource.PlayOneShot(fixedSound);
+	}
 }

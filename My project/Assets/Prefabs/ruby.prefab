@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 4162572434941555141}
   - component: {fileID: 1650203236008992416}
   - component: {fileID: 9037313370617454455}
-  - component: {fileID: 8826423343422578507}
+  - component: {fileID: 851929798}
   m_Layer: 8
   m_Name: ruby
   m_TagString: Untagged
@@ -102,7 +102,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   speed: 3
   maxHealth: 5
+  hitParticle: {fileID: 511636863732580267, guid: 590a34a088a513d48b7bada4ed51d967, type: 3}
+  WinSound: {fileID: 0}
+  LoseSound: {fileID: 0}
+  throwSound: {fileID: 8300000, guid: b2edfd40873655249ba0e01a5cf705be, type: 3}
+  hitSound: {fileID: 8300000, guid: 9b1bb1f450b7d444fa4a8019d13519a7, type: 3}
+  backgroundmusic: {fileID: 0}
   timeInvincible: 2
+  projectilePrefab: {fileID: 3594033380108174246, guid: 88f407f57d8f8a94999abc68f5c2b7a3, type: 3}
+  currentAmmo: 0
+  ammoText: {fileID: 0}
+  fixedText: {fileID: 0}
+  WinTextObject: {fileID: 0}
+  LoseTextObject: {fileID: 0}
 --- !u!50 &1650203236008992416
 Rigidbody2D:
   serializedVersion: 4
@@ -150,7 +162,7 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 0.3198191, y: 0.35006124}
   m_EdgeRadius: 0
---- !u!95 &8826423343422578507
+--- !u!95 &851929798
 Animator:
   serializedVersion: 4
   m_ObjectHideFlags: 0
