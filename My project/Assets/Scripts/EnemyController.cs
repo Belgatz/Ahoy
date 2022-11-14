@@ -83,7 +83,7 @@ public class EnemyController : MonoBehaviour
 
         if (rubyController != null)
         {   
-            rubyController.fixedText(1);
+            rubyController.FixedRobots(1);
         }
 
 		Instantiate(fixedParticleEffect, transform.position + Vector3.up * 0.5f, Quaternion.identity);
